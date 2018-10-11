@@ -202,6 +202,7 @@ impl CPU {
 
     // Controller and PPU needs to be mutable while reading
     pub fn read(&mut self, address: u16) -> u8 {
+        // println!("READ: {:04X}", address);
         match address {
             0x2000..0x4000 => self.mem.ppu.read_register(0x2000 + address % 8),
             0x4014 => self.mem.ppu.read_register(address),
@@ -213,7 +214,20 @@ impl CPU {
 
     // DMA demands CPU access
     pub fn write(&mut self, address: u16, value: u8) {
+        // println!("WRITE: {:04X}:{:02X}", address, value);
         match address {
+            0x4014 => {
+                let mut address = (value as u16) << 8;
+                for _ in 0..256 {
+                    self.mem.ppu.oam_data[self.mem.ppu.oam_address] = self.read(address);
+                    self.mem.ppu.oam_address = self.mem.ppu.oam_address.wrapping_add(1);
+                    address = address.wrapping_add(1);
+                }
+                self.stall += 513;
+                if self.cycles % 2 == 1 {
+                    self.stall += 1;
+                }
+            }
             _ => self.mem.write(address, value),
         }
     }

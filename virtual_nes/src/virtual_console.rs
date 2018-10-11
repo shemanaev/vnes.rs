@@ -12,7 +12,12 @@ use std::rc::Rc;
 
 #[derive(Debug)]
 pub struct VirtualConsole {
+    // pub ram: Vec<u8>,
+    // pub mapper: Rc<Box<dyn Memory>>,
+    // pub ppu: Rc<PPU>,
+    // pub apu: Rc<APU>,
     cpu: CPU,
+    //pub mem: CpuMemory,
 }
 
 const CPU_FREQUENCY: i64 = 1_789_773;
@@ -29,7 +34,12 @@ impl VirtualConsole {
         let cpu = CPU::new(cpu_mem);
 
         Ok(VirtualConsole {
+            // ram: vec![0; 2048],
+            // mapper: mapper,
             cpu: cpu,
+            //mem: cpu_mem,
+            // ppu: ppu,
+            // apu: apu,
         })
     }
 
@@ -38,19 +48,26 @@ impl VirtualConsole {
         self.cpu.reset();
     }
 
+    pub fn get_pixels(&self) -> &[u8] {
+        self.cpu.mem.ppu.get_pixels()
+    }
+
     pub fn step(&mut self) -> usize {
         let cpu_cycles = self.cpu.step();
         let ppu_cycles = cpu_cycles * 3;
         for _ in 0..ppu_cycles {
-            let trigger_nmi = self.cpu.mem.ppu.step();
+            let trigger_nmi = self.cpu.mem.ppu.tick();
             if trigger_nmi {
+                // println!("NMI");
                 self.cpu.trigger_nmi();
             }
+            self.cpu.mem.ppu.step();
         }
         cpu_cycles
     }
 
     pub fn step_seconds(&mut self, seconds: i64) {
+        // println!("SECONDS: {}", seconds);
         let mut cycles = CPU_FREQUENCY * seconds / 1000;
         while cycles > 0i64 {
             cycles -= self.step() as i64;

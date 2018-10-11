@@ -1,0 +1,12 @@
+[package]
+name = "gilneas"
+version = "0.1.0"
+authors = ["nis"]
+edition = "2018"
+
+[dependencies]
+sdl2 = "0.31.0"
+flame = "0.2.2"
+
+[dependencies.virtual_nes]
+path = "../virtual_nes"
