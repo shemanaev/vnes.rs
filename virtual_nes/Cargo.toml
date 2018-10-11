@@ -1,0 +1,9 @@
+[package]
+name = "virtual_nes"
+version = "0.1.0"
+authors = ["nis"]
+edition = "2018"
+
+[dependencies]
+byteorder = "1.2.6"
+failure = "0.1.2"

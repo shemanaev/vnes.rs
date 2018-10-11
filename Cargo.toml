@@ -1,0 +1,7 @@
+[workspace]
+members = [
+        "virtual_nes",
+]
+
+[profile.release]
+panic = 'abort'
